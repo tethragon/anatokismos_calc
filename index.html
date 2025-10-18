@@ -190,7 +190,6 @@
             event.preventDefault();
 
             // 2. Λήψη και μετατροπή τιμών από τα πεδία
-            // Χρησιμοποιούμε "|| 0" για να μετατρέψουμε ένα κενό πεδίο σε 0
             let initialCapital = parseFloat(document.getElementById('initialCapital').value) || 0;
             let annualDeposit = parseFloat(document.getElementById('annualDeposit').value) || 0;
             let interestRate = (parseFloat(document.getElementById('interestRate').value) / 100) || 0; // Μετατροπή % σε δεκαδικό
@@ -206,7 +205,7 @@
                 return;
             }
 
-            // 5. Βοηθητική συνάρτηση για μορφοποίηση νομίσματος (π.χ. 1234.5 -> 1.234,50 €)
+            // 5. Βοηθητική συνάρτηση για μορφοποίηση νομίσματος
             function formatCurrency(num) {
                 return num.toLocaleString('el-GR', {
                     style: 'currency',
@@ -218,24 +217,34 @@
 
             // 6. Κύρια Λογική Υπολογισμού
             
-            // Το 'currentBalance' παρακολουθεί το τελικό ποσό κάθε έτους,
-            // το οποίο γίνεται το αρχικό κεφάλαιο του επόμενου.
-            // Ξεκινάμε με το αρχικό κεφάλαιο που έδωσε ο χρήστης.
+            // Το currentBalance ξεκινά ως το Αρχικό Κεφάλαιο
             let currentBalance = initialCapital;
+            
+            // Μεταβλητές για τα σύνολα
+            let totalDeposits = 0;
+            let totalInterest = 0;
 
             for (let i = 1; i <= years; i++) {
-                // Οι τιμές για τον πίνακα αυτού του έτους
+                
+                // Το κεφάλαιο αρχής είναι το υπόλοιπο του προηγούμενου έτους
                 let capitalStart = currentBalance;
-                let deposit = annualDeposit; // Η κατάθεση γίνεται στην αρχή κάθε έτους
+                
+                // Η ετήσια κατάθεση προστίθεται ΚΑΘΕ χρόνο
+                let deposit = annualDeposit; 
+                
                 let totalStart = capitalStart + deposit;
                 let interestEarned = totalStart * interestRate;
                 let endOfYearBalance = totalStart + interestEarned;
 
-                // Ενημέρωση του υπολοίπου για την επόμενη επανάληψη (επόμενο έτος)
+                // Ενημέρωση Συνόλων
+                totalDeposits += deposit; // Αθροίζουμε μόνο τις ετήσιες καταθέσεις
+                totalInterest += interestEarned;
+
+                // Ενημέρωση του υπολοίπου για την επόμενη επανάληψη
                 currentBalance = endOfYearBalance;
 
                 // 7. Δημιουργία και εισαγωγή της νέας γραμμής στον πίνακα
-                let newRow = tableBody.insertRow(); // Δημιουργεί μια νέα <tr>
+                let newRow = tableBody.insertRow(); 
                 newRow.innerHTML = `
                     <td style="text-align: center;">${i}</td>
                     <td>${formatCurrency(capitalStart)}</td>
@@ -245,6 +254,26 @@
                     <td>${formatCurrency(endOfYearBalance)}</td>
                 `;
             }
+
+            // --- ΠΡΟΣΘΗΚΗ ΓΡΑΜΜΗΣ ΣΥΝΟΛΩΝ ---
+            // Το 'currentBalance' κρατάει ήδη το τελικό ποσό
+            // Το 'totalDeposits' είναι το σύνολο ΜΟΝΟ των ετήσιων καταθέσεων
+            // Το 'totalInterest' είναι το σύνολο ΜΟΝΟ των τόκων
+
+            let summaryRow = tableBody.insertRow();
+            summaryRow.style.fontWeight = 'bold';
+            summaryRow.style.backgroundColor = '#e9ecef'; 
+            summaryRow.style.borderTop = '2px solid #333'; 
+
+            summaryRow.innerHTML = `
+                <td style="text-align: center;">ΣΥΝΟΛΑ</td>
+                <td style="text-align: center;">---</td>
+                <td>${formatCurrency(totalDeposits)}</td>
+                <td style="text-align: center;">---</td>
+                <td>${formatCurrency(totalInterest)}</td>
+                <td>${formatCurrency(currentBalance)}</td>
+            `;
+            // ---------------------------------
         });
 
         // 8. Λογική για το κουμπί Επαναφοράς
