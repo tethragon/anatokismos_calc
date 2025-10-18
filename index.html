@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Υπολογιστής Ανατοκισμού</title>
+    <style>
+        /* Γενικό Στυλ */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Κεντρικό Κοντέινερ */
+        .calculator-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3; /* Ένα ωραίο μπλε */
+            margin-bottom: 25px;
+        }
+
+        /* Στυλ Φόρμας Εισόδου */
+        #interestForm {
+            display: grid;
+            /* Δύο στήλες για desktop, μία για κινητά */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input[type="number"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            /* Για να φαίνεται το € ή % */
+            position: relative;
+        }
+
+        /* Περιοχή Κουμπιών */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .calc-button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .calc-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Κουμπί Υπολογισμού */
+        button[type="submit"] {
+            background-color: #007bff; /* Κύριο μπλε */
+            color: white;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #005ecf;
+        }
+
+        /* Κουμπί Επαναφοράς */
+        #resetButton {
+            background-color: #dc3545; /* Κόκκινο */
+            color: white;
+        }
+
+        #resetButton:hover {
+            background-color: #c82333;
+        }
+
+        /* Στυλ Πίνακα Αποτελεσμάτων */
+        #resultContainer {
+            margin-top: 30px;
+            overflow-x: auto; /* Για να λειτουργεί σωστά σε κινητά */
+        }
+
+        #resultTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #resultTable th,
+        #resultTable td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right; /* Στοίχιση δεξιά για αριθμούς */
+        }
+
+        #resultTable th {
+            background-color: #0056b3;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Εναλλασσόμενο χρώμα γραμμών */
+        #resultTable tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h1>Υπολογιστής Σύνθετου Ανατοκισμού</h1>
+        
+        <form id="interestForm">
+            <div class="form-group">
+                <label for="initialCapital">Αρχικό Κεφάλαιο (€)</label>
+                <input type="number" id="initialCapital" placeholder="π.χ. 1000" min="0" step="any">
+            </div>
+            
+            <div class="form-group">
+                <label for="annualDeposit">Ετήσια Κατάθεση (€)</label>
+                <input type="number" id="annualDeposit" placeholder="π.χ. 500" min="0" step="any">
+            </div>
+            
+            <div class="form-group">
+                <label for="interestRate">Επιτόκιο (%)</label>
+                <input type="number" id="interestRate" placeholder="π.χ. 2" min="0" step="any">
+            </div>
+            
+            <div class="form-group">
+                <label for="years">Έτη Υπολογισμού</label>
+                <input type="number" id="years" placeholder="π.χ. 10" min="1" step="1">
+            </div>
+
+            <div class="button-container" style="grid-column: 1 / -1;">
+                <button type="submit" class="calc-button">Υπολογισμός</button>
+                <button type="button" id="resetButton" class="calc-button">Επαναφορά</button>
+            </div>
+        </form>
+
+        <div id="resultContainer">
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>Έτος</th>
+                        <th>Κεφάλαιο (Α)</th>
+                        <th>Ετήσια Κατάθεση (Β)</th>
+                        <th>Σύνολο Αρχής Έτους (Α+Β)</th>
+                        <th>Τόκος Έτους (Γ)</th>
+                        <th>Ποσό Τέλους Έτους (Α+Β+Γ)</th>
+                    </tr>
+                </thead>
+                <tbody id="resultBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 1. "Ακούει" για την υποβολή της φόρμας
+        document.getElementById('interestForm').addEventListener('submit', function(event) {
+            // Αποτρέπει την ανανέωση της σελίδας
+            event.preventDefault();
+
+            // 2. Λήψη και μετατροπή τιμών από τα πεδία
+            // Χρησιμοποιούμε "|| 0" για να μετατρέψουμε ένα κενό πεδίο σε 0
+            let initialCapital = parseFloat(document.getElementById('initialCapital').value) || 0;
+            let annualDeposit = parseFloat(document.getElementById('annualDeposit').value) || 0;
+            let interestRate = (parseFloat(document.getElementById('interestRate').value) / 100) || 0; // Μετατροπή % σε δεκαδικό
+            let years = parseInt(document.getElementById('years').value) || 0;
+
+            // 3. Επιλογή του "σώματος" του πίνακα και καθαρισμός παλαιών αποτελεσμάτων
+            const tableBody = document.getElementById('resultBody');
+            tableBody.innerHTML = '';
+
+            // 4. Έλεγχος αν τα έτη είναι έγκυρα
+            if (years <= 0) {
+                alert('Παρακαλώ εισάγετε έγκυρο αριθμό ετών (μεγαλύτερο του 0).');
+                return;
+            }
+
+            // 5. Βοηθητική συνάρτηση για μορφοποίηση νομίσματος (π.χ. 1234.5 -> 1.234,50 €)
+            function formatCurrency(num) {
+                return num.toLocaleString('el-GR', {
+                    style: 'currency',
+                    currency: 'EUR',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            // 6. Κύρια Λογική Υπολογισμού
+            
+            // Το 'currentBalance' παρακολουθεί το τελικό ποσό κάθε έτους,
+            // το οποίο γίνεται το αρχικό κεφάλαιο του επόμενου.
+            // Ξεκινάμε με το αρχικό κεφάλαιο που έδωσε ο χρήστης.
+            let currentBalance = initialCapital;
+
+            for (let i = 1; i <= years; i++) {
+                // Οι τιμές για τον πίνακα αυτού του έτους
+                let capitalStart = currentBalance;
+                let deposit = annualDeposit; // Η κατάθεση γίνεται στην αρχή κάθε έτους
+                let totalStart = capitalStart + deposit;
+                let interestEarned = totalStart * interestRate;
+                let endOfYearBalance = totalStart + interestEarned;
+
+                // Ενημέρωση του υπολοίπου για την επόμενη επανάληψη (επόμενο έτος)
+                currentBalance = endOfYearBalance;
+
+                // 7. Δημιουργία και εισαγωγή της νέας γραμμής στον πίνακα
+                let newRow = tableBody.insertRow(); // Δημιουργεί μια νέα <tr>
+                newRow.innerHTML = `
+                    <td style="text-align: center;">${i}</td>
+                    <td>${formatCurrency(capitalStart)}</td>
+                    <td>${formatCurrency(deposit)}</td>
+                    <td>${formatCurrency(totalStart)}</td>
+                    <td>${formatCurrency(interestEarned)}</td>
+                    <td>${formatCurrency(endOfYearBalance)}</td>
+                `;
+            }
+        });
+
+        // 8. Λογική για το κουμπί Επαναφοράς
+        document.getElementById('resetButton').addEventListener('click', function() {
+            // Καθαρίζει τα πεδία της φόρμας
+            document.getElementById('interestForm').reset();
+            
+            // Καθαρίζει τον πίνακα αποτελεσμάτων
+            document.getElementById('resultBody').innerHTML = '';
+        });
+    </script>
+
+</body>
+</html>
